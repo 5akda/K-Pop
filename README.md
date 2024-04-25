@@ -1,7 +1,7 @@
 <h1 align="center">K-Pop : Compose Navigation Example</h1>
 
 > [!TIP]
-> อ่านบทความได้ที่นี่ [Navigation ใน Jetpack Compose แบบ Basic สุด ๆ](https://medium.com/@5akda)
+> อ่านบทความได้ที่นี่ [Navigation ใน Jetpack Compose แบบ Basic สุด ๆ](https://medium.com/@5akda/compose-navigation-c66ab717f6c2)
 
 <p align="center">
 <img src="preview/screens.png"/>
