@@ -5,20 +5,18 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 import dagger.hilt.android.AndroidEntryPoint
 import iam5akda.kpop.ui.detail.ArtistDetailScreen
 import iam5akda.kpop.ui.home.HomeScreen
 import iam5akda.kpop.ui.settings.SettingsScreen
 import iam5akda.kpop.ui.theme.KPopTheme
+import kotlinx.serialization.Serializable
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -26,48 +24,49 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             KPopTheme(darkTheme = false, dynamicColor = false) {
-                KPopNavHost(modifier = Modifier.fillMaxSize())
+                KPopNavHost()
             }
         }
     }
 }
 
+class Route {
+    @Serializable
+    object Home
+
+    @Serializable
+    data class ArtistDetail(val name: String)
+
+    @Serializable
+    object Settings
+}
+
 @Composable
-fun KPopNavHost(modifier: Modifier) {
+fun KPopNavHost() {
 
     val navController = rememberNavController()
 
     NavHost(
-        modifier = modifier,
         navController = navController,
-        startDestination = "home"
+        startDestination = Route.Home
     ) {
-        composable(
-            route = "home"
-        ) {
+        composable<Route.Home> {
             HomeScreen(
-                onArtistClick = { artistName ->
-                    navController.navigate("artistDetail/$artistName")
+                onArtistClick = { artistName: String ->
+                    navController.navigate(
+                        Route.ArtistDetail(name = artistName)
+                    )
                 },
                 onSettingsClick = {
-                    navController.navigate("settings")
+                    navController.navigate(Route.Settings)
                 }
             )
         }
-
-        composable(
-            route = "artistDetail/{artistName}",
-            arguments = listOf(
-                navArgument("artistName") {
-                    type = NavType.StringType
-                    nullable = false
-                }
-            )
-        ) {
+        composable<Route.ArtistDetail> {
             val context = LocalContext.current
-
+            val args = it.toRoute<Route.ArtistDetail>()
             ArtistDetailScreen(
-                artistName = it.arguments?.getString("artistName") ?: "",
+                artistName = args.name,
                 onBackClick = {
                     navController.popBackStack()
                 },
@@ -77,10 +76,7 @@ fun KPopNavHost(modifier: Modifier) {
                 }
             )
         }
-
-        composable(
-            route = "settings"
-        ) {
+        composable<Route.Settings> {
             SettingsScreen(
                 onCloseClick = {
                     navController.popBackStack()
